@@ -1,9 +1,16 @@
 <template>
-	<div class="container">µBlog</div>
+	<div class="container">
+		<RestTest/>
+	</div>
 </template>
 
 <script>
+import RestTest from './components/RestTest.vue'
+
 export default {
-  name: 'app'
+	name: 'app',
+	components: {
+		RestTest
+	}
 }
 </script>
