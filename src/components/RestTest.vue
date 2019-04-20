@@ -16,10 +16,24 @@ export default {
 		};
 	},
 	created() {
-		rest.get('/test', (err, data) => {
+		rest.get('/test', null, (err, data) => {
 			if (err) throw err;
+
 			this.test = data;
+			console.log("OK");
 			console.log(data);
+		});
+
+		rest.put('/test', { name: 'Foobar', content: 'Lorem ipsum' }, (err, data) => {
+			if (err) throw err;
+		});
+
+		/*rest.get('/cookies', null, (err, data) => {
+			if (err) throw err;
+		});*/
+
+		rest.post('/cookies', null, (err, data) => {
+			if (err) throw err;
 		});
 	}
 }
