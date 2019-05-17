@@ -1,16 +1,16 @@
 <template>
 	<div class="container">
-		<RestTest/>
+		<MarkdownWriter/>
 	</div>
 </template>
 
 <script>
-import RestTest from './components/RestTest.vue'
+import MarkdownWriter from './components/MarkdownWriter.vue'
 
 export default {
 	name: 'app',
 	components: {
-		RestTest
+		MarkdownWriter
 	}
 }
 </script>
