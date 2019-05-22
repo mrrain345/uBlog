@@ -17,10 +17,7 @@ export default {
 	created() {
 		rest.get('/test', null, (err, data) => {
 			if (err) throw err;
-
-			this.test = data;
-			console.log("OK");
-			console.log(data);
+			this.test = data[0];
 		});
 
 		/*rest.get('/cookies', null, (err, data) => {

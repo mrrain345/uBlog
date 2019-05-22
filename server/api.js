@@ -4,7 +4,8 @@ const db = require('./db.js');
 
 // mysql test
 api.get('/test', (req, res) => {
-	db.query("SELECT count(*) FROM users", (result, fields) => {
+	db.query("SELECT ? AS result", [1], (err, result, fields) => {
+		if (err) throw err;
 		res.json(result);
 	});
 });
