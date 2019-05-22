@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="container">
 		<div id="toolbar" class="row">
 			<div class="dropdown">
 				Header
