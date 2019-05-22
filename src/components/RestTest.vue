@@ -1,7 +1,6 @@
 <template>
 	<div v-if="test !== null">
-		<p>{{ test.test }}</p>
-		<p>{{ test.test2 }}</p>
+		<p>REST: {{ JSON.stringify(test) }}</p>
 	</div>
 </template>
 
@@ -24,17 +23,13 @@ export default {
 			console.log(data);
 		});
 
-		rest.put('/test', { name: 'Foobar', content: 'Lorem ipsum' }, (err, data) => {
-			if (err) throw err;
-		});
-
 		/*rest.get('/cookies', null, (err, data) => {
 			if (err) throw err;
-		});*/
+		});
 
 		rest.post('/cookies', null, (err, data) => {
 			if (err) throw err;
-		});
+		});*/
 	}
 }
 </script>

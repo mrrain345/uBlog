@@ -1,15 +1,17 @@
 const express = require('express');
 const api = express.Router();
+const db = require('./db.js');
 
-api.get('/test', (req, res) => res.json({
-	test: "API TEST",
-	test2: "API TEST 2"
-}));
-
-api.put('/test', (req, res) => {
-	console.log('PUT:', req.body);
+// mysql test
+api.get('/test', (req, res) => {
+	db.query("SELECT count(*) FROM users", (result, fields) => {
+		res.json(result);
+	});
 });
 
+
+
+// cookies test
 api.post('/cookies', (req, res) => {
 	console.log('Cookies:', req.cookies);
 	console.log('Signed Cookies:', req.signedCookies);
