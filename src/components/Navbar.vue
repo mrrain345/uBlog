@@ -29,7 +29,7 @@ export default {
 				{ href: '/comment', text: 'Comment' },
 				{ href: '/add-comment', text: 'AddComment' },
 				{ href: '/registration', text: 'Registration' },
-				
+				{ href: '/rest', text: 'RestTest' }
 			]
 		}
 	},
@@ -38,7 +38,7 @@ export default {
 			this.active = id;
 		}
 	},
-	beforeMount() {
+	created() {
 		const path = window.location.pathname;
 		this.active = -1;
 		for (let i = 0; i < this.navs.length; i++) {
