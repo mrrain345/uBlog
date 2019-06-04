@@ -11,13 +11,13 @@
             <div class="col-1"></div>
             <div class="col-10">
               <div class="form-group">
-                <label for="login">Login</label>
+                <label for="username">Username</label>
                 <input
-                  id="login"
+                  id="username"
                   class="form-control"
-                  v-model="login"
+                  v-model="username"
                   type="text"
-                  placeholder="Login"
+                  placeholder="username"
                 >
               </div>
               <div class="form-group">
@@ -41,21 +41,21 @@
                 >
               </div>
               <div class="form-group">
-                <label for="pass1">Password</label>
+                <label for="password">Password</label>
                 <input
-                  id="pass1"
+                  id="password"
                   class="form-control"
-                  v-model="pass1"
+                  v-model="password"
                   type="password"
                   placeholder="Password"
                 >
               </div>
               <div class="form-group">
-                <label for="pass2">Confirm password</label>
+                <label for="cpassword">Confirm password</label>
                 <input
-                  id="pass2"
+                  id="cpassword"
                   class="form-control"
-                  v-model="pass2"
+                  v-model="cpassword"
                   type="password"
                   placeholder="Confirm password"
                 >
@@ -79,10 +79,10 @@ export default {
   name: "RegistrationForm",
   data() {
     return {
-      login: "",
+      username: "",
       email: "",
-      pass1: "",
-      pass2: "",
+      password: "",
+      cpassword: "",
       checkbox: ""
     };
   },
