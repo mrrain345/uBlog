@@ -32,5 +32,4 @@ const rest = {
 	delete	(uri, data, callback) { rest.request('DELETE', uri, data, callback); }
 }
 
-if (webpackHotUpdate) rest.url = 'http://localhost:8080/api';
 export default rest;

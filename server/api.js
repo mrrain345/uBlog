@@ -28,4 +28,10 @@ api.get('/cookies', (req, res) => {
 	res.json({});
 });
 
+// 404 handler
+api.all('*', (req, res) => res.json({
+	error: 404,
+	message: 'Not Found'
+}));
+
 module.exports = api;
