@@ -95,7 +95,7 @@ export default {
     registration() {
       console.log(this.checkbox);
       rest.post(
-        "/user",
+        "/registration",
         {
           username: this.username,
           email: this.email,
