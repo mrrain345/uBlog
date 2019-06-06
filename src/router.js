@@ -7,6 +7,7 @@ module.exports = {
         { path: '/registration', component: require('./components/RegistrationForm.vue').default },
         { path: '/registration-confirm', component: require('./components/RegistrationConfirm.vue').default },
         { path: '/rest', component: require('./components/RestTest.vue').default },
+        { path: '/articles', component: require('./components/Articles.vue').default },
         { path: '*', component: require('./components/NotFound.vue').default }
 
     ]
