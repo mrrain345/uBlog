@@ -14,6 +14,16 @@ api.get('/test', (req, res) => {
     });
 });
 
+//articles
+api.get('/user/:id/articles/:offset/:limit', (req, res) => {
+    let offset = (req.params.offset !== undefined) ? parseInt(req.params.offset) : 0;
+    let limit = (req.params.limit !== undefined) ? parseInt(req.params.limit) : 25;
+    db.query("SELECT id,title,content,creation_date,views,likes,dislikes FROM articles WHERE author=? LIMIT ?,?", [parseInt(req.params.id),limit,offset], (err, result, fields) => {
+        if (err) throw err;
+        res.json(result);
+    });
+});
+
 //registration
 api.post('/registration', (req, res) => {
     if (req.body.username === undefined || req.body.email === undefined || req.body.password === undefined || req.body.cpassword === undefined || req.body.title === undefined)

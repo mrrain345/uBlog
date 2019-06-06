@@ -12,16 +12,30 @@
 </template>
 
 <script>
-
+import rest from "../rest.js";
 export default {
 	name: 'Articles',
 	data(){
 		return{
-			articles:[
-				{title: "Tytuł artykułu", content:"Lorem ipsum sit amet, consectetur adipiscing elit exorcizamus te, omnis immundus spiritus, omnis satanica potestas, omnis incursio infernalis adversarii, omnis legio, omnis congregatio et secta diabolica, ergo draco maledicte, ut ecclesiam tuam secura, tibi facias libertate servire, te rogamus, audi nos."},
-				{title: "Tytuł artykułu", content:"Lorem ipsum sit amet, consectetur adipiscing elit exorcizamus te, omnis immundus spiritus, omnis satanica potestas, omnis incursio infernalis adversarii, omnis legio, omnis congregatio et secta diabolica, ergo draco maledicte, ut ecclesiam tuam secura, tibi facias libertate servire, te rogamus, audi nos."}
-			]
+			articles:[]
 		}
+	},
+	methods:{
+		getArticles(id){
+			 rest.get(
+        "/user/"+id+"/articles/25/0",
+	  
+		 null,
+		 
+        (err, data) => {
+		  if (err) throw err;
+		  this.articles = data;
+        }
+      );
+		}
+	},
+	created(){
+		this.getArticles(1);
 	}
 }
 </script>
