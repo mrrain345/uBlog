@@ -1,24 +1,27 @@
 <template>
 	<div class="container">
 		<div id="toolbar" class="row">
-			<div class="btn-group" style="margin-right: 5px;">
-				<button type="button" class="btn btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Header</button>
-				<div class="dropdown-menu">
-					<button class="dropdown-item" @click="set_header(1)">Title</button>
-					<button class="dropdown-item" @click="set_header(3)">Subtitle</button>
-					<button class="dropdown-item" @click="set_header(0)">Normal text</button>
-					<div class="dropdown-divider"></div>
+			<div class="col-12">
+				<div class="btn-group" style="margin-right: 5px;">
+					<button type="button" class="btn btn-success dropdown-toggle header" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Header</button>
+					<div class="dropdown-menu">
+						<button class="dropdown-item" @click="set_header(1)">Title</button>
+						<button class="dropdown-item" @click="set_header(3)">Subtitle</button>
+						<button class="dropdown-item" @click="set_header(0)">Normal text</button>
+					</div>
 				</div>
-			</div>
-			<div class="btn-group" role="group" aria-label="Basic example">
-				<button type="button" class="btn btn-success" @click="insert('**')">B</button>
-				<button type="button" class="btn btn-success" @click="insert('*')">I</button>
-				<button type="button" class="btn btn-success" @click="insert('++')">U</button>
+				<div class="btn-group" style="margin-right: 5px;" role="group" aria-label="Basic example">
+					<button type="button" class="btn btn-success" @click="insert('**')"><i class="material-icons">format_bold</i></button>
+					<button type="button" class="btn btn-success" @click="insert('*')"><i class="material-icons">format_italic</i></button>
+					<button type="button" class="btn btn-success" @click="insert('++')"><i class="material-icons">format_underlined</i></button>
+				</div>
+				<button type="button" class="btn btn-success" @click="set_list()"><i class="material-icons">format_list_bulleted</i></button>
+				<button id="send" type="button" class="btn btn-success" @click="send()"><i class="material-icons">send</i></button>
 			</div>
 		</div>
 		<div class="row">
-			<textarea id="source" class="col-6" v-model="source"></textarea>
-			<VueMarkdown class="markdown col-6" :source="source"></VueMarkdown>
+			<textarea id="source" class="form-control col-12 col-lg-6" v-model="source"></textarea>
+			<VueMarkdown class="markdown col-12 col-lg-6" :source="source"></VueMarkdown>
 		</div>
 	</div>
 </template>
@@ -33,7 +36,7 @@ export default {
 	},
 	data() {
 		return {
-			source: '# Lorem ipsum\n\n### Lorem ipsum dolor sit amet\nConsectetur adipiscing elit. Curabitur ac ante pretium tortor venenatis fringilla. Quisque mauris augue, sollicitudin quis congue quis, facilisis at nibh. Sed euismod consectetur magna ac malesuada. Morbi erat leo, pulvinar id euismod quis, imperdiet vel nunc. Nulla lacinia malesuada purus, eu maximus leo semper et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vestibulum enim sed vestibulum maximus. Praesent imperdiet in dui ut ultrices. In sit amet aliquet nibh, eu pretium tellus.\n\nSuspendisse rutrum, dolor ultricies luctus tempus, orci diam scelerisque massa, vel posuere neque metus ac nisi. Sed efficitur ut est ac scelerisque. Pellentesque porttitor, ipsum quis semper porta, massa lectus consequat neque, non lobortis ex metus ut diam. Fusce consequat dui sit amet eros ultricies egestas. Praesent quis rhoncus mi, ac tincidunt enim. Sed aliquam luctus urna, et tempor turpis molestie ac. Nunc nec venenatis enim. Nullam elementum metus eu vulputate hendrerit. Pellentesque interdum euismod consequat. Suspendisse consectetur mattis porta. Aenean massa eros, dignissim vitae maximus vel, fringilla a ligula. Morbi felis nibh, viverra maximus nisl vitae, hendrerit bibendum diam. Sed a nibh quam. Nulla commodo tincidunt ultrices. Mauris aliquam orci risus, nec aliquet lacus laoreet eu. Suspendisse pulvinar vehicula lorem tristique fringilla.'
+			source: '# Lorem ipsum\n\n### Lorem ipsum dolor sit amet\nConsectetur adipiscing elit. Curabitur ac ante pretium tortor venenatis fringilla. Quisque mauris augue, sollicitudin quis congue quis, facilisis at nibh. Sed euismod consectetur magna ac malesuada. Morbi erat leo, pulvinar id euismod quis, imperdiet vel nunc. Nulla lacinia malesuada purus, eu maximus leo semper et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vestibulum enim sed vestibulum maximus. Praesent imperdiet in dui ut ultrices. In sit amet aliquet nibh, eu pretium tellus.\n\nSuspendisse rutrum,\ndolor ultricies luctus tempus,\norci diam scelerisque massa,\nvel posuere neque metus ac nisi.\nSed efficitur ut est ac scelerisque.\nPellentesque porttitor,\nipsum quis semper porta,\nmassa lectus consequat neque,\nnon lobortis ex metus ut diam.\n\nFusce consequat dui sit amet eros ultricies egestas. Praesent quis rhoncus mi, ac tincidunt enim. Sed aliquam luctus urna, et tempor turpis molestie ac. Nunc nec venenatis enim. Nullam elementum metus eu vulputate hendrerit. Pellentesque interdum euismod consequat. Suspendisse consectetur mattis porta. Aenean massa eros, dignissim vitae maximus vel, fringilla a ligula. Morbi felis nibh, viverra maximus nisl vitae, hendrerit bibendum diam. Sed a nibh quam. Nulla commodo tincidunt ultrices. Mauris aliquam orci risus, nec aliquet lacus laoreet eu. Suspendisse pulvinar vehicula lorem tristique fringilla.'
 		};
 	},
 	methods: {
@@ -93,6 +96,29 @@ export default {
 			const txt2 = value.substr(line_start+hlvl);
 
 			this.set_text(txt1 + header + txt2, header.length-hlvl, header.length-hlvl);
+		},
+
+		set_list() {
+			const textarea = document.getElementById('source');
+			const start = textarea.selectionStart;
+			const end = textarea.selectionEnd;
+			const value = textarea.value
+			const line_start = value.substr(0, start).lastIndexOf('\n');
+			
+			
+			const txt1 = value.substr(0, line_start);
+			const txt2 = value.substr(line_start, end-line_start);
+			const txt3 = value.substr(end);
+
+			let txt_new;
+			const mode = value.substr(line_start, 3) === '\n* ';
+			if (mode) {
+				txt_new = txt2.replace(new RegExp('\n\\* ', 'g'), '\n');
+			} else {
+				txt_new = txt2.replace(new RegExp('\n', 'g'), '\n* ');
+			}
+
+			this.set_text(txt1 + txt_new + txt3, (mode ? -2 : 2), (txt_new.length-txt2.length));
 		}
 	}
 }
@@ -104,9 +130,12 @@ export default {
 		background-color: #81c784;
 	}
 
+	#toolbar .col-12 {
+		padding: 4px;
+	}
+
 	textarea {
-		height: 600px;
-		outline: none;
+		height: 140px;
 		resize: none;
 		border: none;
 		border-right: dotted 1px #81c784;
@@ -116,5 +145,33 @@ export default {
 	.markdown {
 		border-right: dotted 1px #81c784;
 		text-align: justify;
+		overflow: auto;
+		margin-top: 10px;
+		height: calc(100vh - 280px);
+	}
+
+	@media screen and (min-width: 992px) {
+		textarea {
+			height: calc(100vh - 160px);
+		}
+
+		.markdown {
+			height: calc(100vh - 160px);
+			margin-top: 0;
+		}
+	}
+
+	.material-icons {
+		line-height: inherit;
+		font-size: 20px;
+	}
+
+	.header {
+		font-weight: bold;
+		font-size: 20px;
+	}
+
+	#send {
+		float: right;
 	}
 </style>
