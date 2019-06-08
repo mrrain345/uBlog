@@ -93,7 +93,6 @@ export default {
   },
   methods: {
     registration() {
-      console.log(this.checkbox);
       rest.post(
         "/registration",
         {

@@ -5,14 +5,16 @@ const validator = require("email-validator");
 const passwordHash = require('password-hash');
 const cryptoRandomString = require('crypto-random-string');
 const sendmail = require('sendmail')();
+const urlSlug = require('url-slug');
 
-// mysql test
-api.get('/test', (req, res) => {
-    db.query("SELECT ? AS result", [1], (err, result, fields) => {
-        if (err) throw err;
-        res.json(result);
-    });
-});
+// TODO
+function get_current_id() {
+	return 1;
+}
+
+function get_current_username() {
+	return 'MrRaiN';
+}
 
 //articles
 api.get('/user/:id/articles/:offset/:limit', (req, res) => {
@@ -77,6 +79,23 @@ api.post('/registration/token', (req, res) => {
             });
         }
     });
+});
+
+// create an article
+api.post('/article', (req, res) => {
+	if (req.body.title === undefined || req.body.title === '') res.json({ code: 1, message: 'Title is not set' });
+	else if (req.body.content === undefined || req.body.content === '') res.json({ code: 2, message: 'Content is not set' });
+	else {
+		const id = get_current_id();
+		db.query("INSERT INTO articles (author, title, content) VALUES (?, ?, ?)", [id, req.body.title, req.body.content], (err, result, fields) => {
+			if (err) throw err;
+			db.query("SELECT id FROM articles WHERE author=? AND title=? ORDER BY creation_date DESC LIMIT 1", [id, req.body.title], (err, result, fields) => {
+				if (err) throw err;
+				const url = '/' + get_current_username() + '/' + result[0].id + '/' + urlSlug(req.body.title);
+				res.json({ code: 0, message: "success", id: result[0].id, url: url });
+			});
+		});
+	}
 });
 
 // cookies test
