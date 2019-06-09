@@ -7,21 +7,68 @@ const cryptoRandomString = require('crypto-random-string');
 const sendmail = require('sendmail')();
 const urlSlug = require('url-slug');
 
-// TODO
-function get_current_id() {
-	return 1;
+function throw_error(req, err) {
+	if (err) {
+		console.error('ERROR:', err);
+		console.error('REQUEST:', req.method, req.url, JSON.stringify(req.body, null, 2));
+	}
 }
 
-function get_current_username() {
-	return 'MrRaiN';
+function get_current_user(req, callback) {
+	const session = req.signedCookies['ublog_session'];
+	if (session === undefined) return undefined;
+	db.query("SELECT sessions.user AS id, users.username AS username FROM sessions LEFT JOIN users ON sessions.user=users.id WHERE session=? LIMIT 1", [session], (err, result, fields) => {
+		throw_error(req, err);
+		if (result.length < 1) callback(undefined);
+        else callback({ id: result[0].id, username: result[0].username });
+    });
 }
+
+
+// create session
+api.post('/session', (req, res) => {
+	if (req.body.email === null || req.body.password === null) res.json({ code: 2, message: "Email and password is required" });
+	else {
+		db.query("SELECT id, password FROM users WHERE email=?LIMIT 1", [req.body.email], (err, result, fields) => {
+			throw_error(req, err);
+			if (result.length < 1) res.json({ code: 1, message: "Bad email or password" });
+			else if (!passwordHash.verify(req.body.password, result[0].password)) res.json({ code: 1, message: "Bad email or password" });
+			else {
+				const session = cryptoRandomString({ length: 32, type: 'hex' });
+				const options = {
+					maxAge: 1000 * 60 * 60 * 30,
+					httpOnly: true,
+					signed: true
+				};
+
+				db.query("INSERT INTO sessions (session,user) VALUES (?, ?)", [session, result[0].id], (err, result2, fields) => {
+					throw_error(req, err);
+					res.cookie('ublog_session', session, options);
+					res.json({ code: 0, message: "success", id: result[0].id, username: result[0].username });
+				});
+			}
+		});
+	}
+});
+
+// check session
+api.get('/session', (req, res) => {
+	get_current_user(req, (user) => {
+		console.log('user:', user);
+		if (user === undefined) res.json({ code: 1, message: 'Session not found' });
+		else {
+			console.log({ code: 0, message: 'You are logged in', id: user.id, username: user.username });
+			res.json({ code: 0, message: 'You are logged in', id: user.id, username: user.username });
+		}
+	});
+});
 
 //articles
-api.get('/user/:id/articles/:offset/:limit', (req, res) => {
+api.get('/user/:id/articles/:offset?/:limit?', (req, res) => {
     let offset = (req.params.offset !== undefined) ? parseInt(req.params.offset) : 0;
-    let limit = (req.params.limit !== undefined) ? parseInt(req.params.limit) : 25;
-    db.query("SELECT id,title,content,creation_date,views,likes,dislikes FROM articles WHERE author=? LIMIT ?,?", [parseInt(req.params.id),limit,offset], (err, result, fields) => {
-        if (err) throw err;
+	let limit = (req.params.limit !== undefined) ? parseInt(req.params.limit) : 25;
+    db.query("SELECT id,title,content,creation_date,views,likes,dislikes FROM articles WHERE author=? LIMIT ?,?", [parseInt(req.params.id),offset,limit], (err, result, fields) => {
+        throw_error(req, err);
         res.json(result);
     });
 });
@@ -38,17 +85,17 @@ api.post('/registration', (req, res) => {
     else if (!req.body.checkbox) res.json({ code: 9, message: "Checkbox unchecked" });
     else {
         db.query("SELECT count(1) AS result FROM users WHERE username=? LIMIT 1", [req.body.username], (err, result, fields) => {
-            if (err) throw err;
+            throw_error(req, err);
             if (result[0].result > 0) res.json({ code: 4, message: "Username is used" });
             else {
                 db.query("SELECT count(1) AS result FROM users WHERE email=? LIMIT 1", [req.body.email], (err, result, fields) => {
-                    if (err) throw err;
+                    throw_error(req, err);
                     if (result[0].result > 0) res.json({ code: 5, message: "Email is used" });
                     else {
                         const hash = passwordHash.generate(req.body.password);
                         const token = cryptoRandomString({ length: 32, type: 'hex' });
                         db.query("INSERT INTO users (email, username, password, title, registration_token) VALUES (?, ?, ?, ?, ?)", [req.body.email, req.body.username, hash, req.body.title, token], (err, result, fields) => {
-                            if (err) throw err;
+                            throw_error(req, err);
                             res.json({ code: 0, message: "success" });
                             sendmail({
                                 from: 'no-reply@ublog.ue',
@@ -70,11 +117,11 @@ api.post('/registration', (req, res) => {
 // registration-confirm test
 api.post('/registration/token', (req, res) => {
     db.query("SELECT count(1) AS result FROM users WHERE registration_token=? LIMIT 1", [req.body.token], (err, result, fields) => {
-        if (err) throw err;
+        throw_error(req, err);
         if (result[0].result === 0) res.json({ code: 1, message: "Token is incorrect" });
         else {
             db.query("UPDATE users SET registration_token=null WHERE registration_token=?", [req.body.token], (err, result, fields) => {
-                if (err) throw err;
+                throw_error(req, err);
                 res.json({ code: 0, message: "success" });
             });
         }
@@ -86,33 +133,23 @@ api.post('/article', (req, res) => {
 	if (req.body.title === undefined || req.body.title === '') res.json({ code: 1, message: 'Title is not set' });
 	else if (req.body.content === undefined || req.body.content === '') res.json({ code: 2, message: 'Content is not set' });
 	else {
-		const id = get_current_id();
-		db.query("INSERT INTO articles (author, title, content) VALUES (?, ?, ?)", [id, req.body.title, req.body.content], (err, result, fields) => {
-			if (err) throw err;
-			db.query("SELECT id FROM articles WHERE author=? AND title=? ORDER BY creation_date DESC LIMIT 1", [id, req.body.title], (err, result, fields) => {
-				if (err) throw err;
-				const url = '/' + get_current_username() + '/' + result[0].id + '/' + urlSlug(req.body.title);
-				res.json({ code: 0, message: "success", id: result[0].id, url: url });
-			});
+		get_current_user(req, (user) => {
+			if (user === undefined) res.json({ code: 3, message: 'You are not logged' });
+			else {
+				db.query("INSERT INTO articles (author, title, content) VALUES (?, ?, ?)", [id, req.body.title, req.body.content], (err, result, fields) => {
+					throw_error(req, err);
+					db.query("SELECT id FROM articles WHERE author=? AND title=? ORDER BY creation_date DESC LIMIT 1", [user.id, req.body.title], (err, result, fields) => {
+						throw_error(req, err);
+						const url = '/' + user.username + '/' + result[0].id + '/' + urlSlug(req.body.title);
+						res.json({ code: 0, message: "success", id: result[0].id, url: url });
+					});
+				});
+			}
 		});
 	}
 });
 
-// cookies test
-api.post('/cookies', (req, res) => {
-    console.log('Cookies:', req.cookies);
-    console.log('Signed Cookies:', req.signedCookies);
-});
 
-api.get('/cookies', (req, res) => {
-    const options = {
-        maxAge: 1000 * 60 * 60 * 14,
-        httpOnly: true,
-        signed: true
-    }
-    res.cookie('ublog_session', Math.floor(Math.random() * 10000000000), options);
-    res.json({});
-});
 // 404 handler
 api.all('*', (req, res) => res.json({
     error: 404,

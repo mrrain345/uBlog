@@ -29,7 +29,8 @@ export default {
 				{ href: '/comment', text: 'Comment' },
 				{ href: '/add-comment', text: 'AddComment' },
 				{ href: '/registration', text: 'Registration' },
-				{ href: '/rest', text: 'RestTest' }
+				{ href: '/login', text: 'Login' },
+				{ href: '/articles', text: 'Articles' },
 			]
 		}
 	},

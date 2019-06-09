@@ -23,7 +23,7 @@ export default {
 	methods:{
 		getArticles(id){
 			 rest.get(
-        "/user/"+id+"/articles/25/0",
+        "/user/"+id+"/articles",
 	  
 		 null,
 		 
