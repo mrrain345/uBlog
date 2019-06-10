@@ -17,7 +17,7 @@
         "password-hash": "^1.2.2",
         "sendmail": "^1.4.1",
         "url-slug": "^2.1.1",
-        "vue": "^2.6.6",
+        "vue": "^2.6.10",
         "vue-markdown": "^2.2.4",
         "vue-router": "^3.0.6"
     },
