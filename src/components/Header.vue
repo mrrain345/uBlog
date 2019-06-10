@@ -14,7 +14,8 @@
                     </div>
                  </div>
                 <div class="col-3 col-lg-2">
-                    <button class="btn btn-danger">Subscribe</button>
+                    <button class="btn btn-success" @click="subscribing()" v-if="subscribe">Subscribe</button>
+                    <button class="btn btn-danger" @click="subscribing()" v-else>Unsubscribe</button>
                     <span id="subscribes">{{ subscribes }}</span>
                 </div>
 		    </div>
@@ -27,16 +28,43 @@
 </template>
 
 <script>
+
+import rest from '../rest.js'
+
 export default {
 	name: 'Header',
 	data() {
 		return {
             user: 'User',
             subscribes:0,
-            avatar:"/user_photo.png"
-            
+            avatar:"/user_photo.png",
+            subscribe:false
 		};
-	}
+    },
+    created(){
+        rest.get("/article/1/subscribe", 
+        null, (err, data) => {
+				if (err) throw err;
+				if(data.code===0){
+                    this.subscribe = data.subscribed;
+                }
+			});
+    },
+    methods:{
+        subscribing(){
+            rest.put("/article/1/subscribe", 
+        {
+            subscribe:!this.subscribe
+        }, (err, data) => {
+                if (err) throw err;
+                if(data.code===0){
+                    console.log(data);
+                    this.subscribe = data.subscribed;
+                }
+			});
+
+        }
+    }
 }
 
 </script>
@@ -68,6 +96,9 @@ export default {
         margin-top:8px;
         width: 100%;
         
+    }
+    .subscribed{
+        background-color:#4CAF50;
     }
     @media screen and (min-width: 768px){
         #user{

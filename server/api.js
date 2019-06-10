@@ -16,12 +16,14 @@ function throw_error(req, err) {
 
 function get_current_user(req, callback) {
 	const session = req.signedCookies['ublog_session'];
-	if (session === undefined) return undefined;
-	db.query("SELECT sessions.user AS id, users.username AS username FROM sessions LEFT JOIN users ON sessions.user=users.id WHERE session=? LIMIT 1", [session], (err, result, fields) => {
-		throw_error(req, err);
-		if (result.length < 1) callback(undefined);
-        else callback({ id: result[0].id, username: result[0].username });
-    });
+	if (session === undefined) callback (undefined);
+    else{
+        db.query("SELECT sessions.user AS id, users.username AS username FROM sessions LEFT JOIN users ON sessions.user=users.id WHERE session=? LIMIT 1", [session], (err, result, fields) => {
+            throw_error(req, err);
+            if (result.length < 1) callback(undefined);
+            else callback({ id: result[0].id, username: result[0].username });
+        });
+    }
 }
 
 
@@ -223,6 +225,70 @@ api.put('/article/:id/comments/:comment/reaction', (req, res) => {
         })
     }
 });
+//Header check subscribe
+api.get('/article/:id/subscribe', (req, res) => {
+    
+    get_current_user(req, (user)=>{
+        
+        if(user===undefined){
+            res.json({ code: 0, message: "success", subscribed:false});
+        }
+        else{
+            db.query("SELECT subscribed FROM subscriptions WHERE user = ? AND subscribed = ? LIMIT 1", [user.id,req.params.id], (err, result, fields)=> {
+                throw_error(req, err);
+                if(result.length===0){
+                    res.json({ code: 0, message: "success", subscribed:false});
+                }    
+                else{
+                    res.json({ code: 0, message: "success", subscribed:true});
+                }
+             })
+        }
+    });
+});
+
+//Header change subcription
+api.put('/article/:id/subscribe', (req, res) => {
+    if(req.body.subscribe===undefined){
+        res.json({ code: 2, message: "Subscribe is required"});
+    }
+    else get_current_user(req, (user)=>{
+       
+        if(user===undefined){
+            res.json({ code: 1, message: "You're not logged in"});
+        }
+        else{
+            db.query("SELECT subscribed FROM subscriptions WHERE user = ? AND subscribed = ? LIMIT 1", [user.id,req.params.id], (err, result, fields)=> {
+                throw_error(req, err);
+                if(result.length===0 && req.body.subscribe) {
+                    db.query("INSERT INTO subscribed (user, subscribed) VALUES (?,?)", [user.id,req.params.id], (err, result, fields)=> {
+                        throw_error(req, err);
+                        db.query("UPDATE users SET subscribes=subscribes+1 WHERE id=?",[req.params.id],(err, result, fields)=>{
+                            throw_error(req, err);
+                            res.json({ code: 0, message: "success", subscribed:true});
+                        })
+                    })
+                }    
+                else if(result.length!==0 && !req.body.subscribe){
+                    db.query("DELETE FROM subscribed WHERE user = ? AND subscribed = ? LIMIT 1", [user.id,req.params.id], (err, result, fields)=> {
+                        throw_error(req, err);
+                        db.query("UPDATE users SET subscribes=subscribes-1 WHERE id=?",[req.params.id],(err, result, fields)=>{
+                            throw_error(req, err);
+                            res.json({ code: 0, message: "success", subscribed:false});
+                        })
+                        
+                        
+                    })
+                }
+                else{
+                    res.json({ code: 0, message: "success", subscribed:req.body.subscribe});
+                }
+             })
+        }
+    });
+});
+
+
 
 // 404 handler
 api.all('*', (req, res) => res.json({
