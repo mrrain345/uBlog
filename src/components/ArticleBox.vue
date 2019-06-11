@@ -6,22 +6,22 @@
 			    <div class="col-12">
                     <div class="row">
                         <div class="col-12">
-                            <div id="title">{{ title }}</div>
-                            <div id="date">{{ date }}</div>
+                            <div id="title">{{article.title }}</div>
+                            <div id="date">{{ article.creation_date }}</div>
                         </div>
                     </div>
                     <div class="row" style="margin-top: 4px;">
-                       <VueMarkdown class="markdown col-12 col-lg-6" :source="content">{{content}}</VueMarkdown>
+                       <VueMarkdown class="markdown col-12" :source="article.content">{{article.content}}</VueMarkdown>
                     </div>
                     <div class="row">
-                    <div class="col-6"><span id="views">{{views}} views</span></div>
+                    <div class="col-6"><span id="views">{{article.views}} views</span></div>
                      <div class="col-6">                            
                             <span @click="clicked(2)">
-                                <div class="reaction" :class="{ 'pressed-reaction': reaction==2 }">{{ dislikes }}</div>
+                                <div class="reaction" :class="{ 'pressed-reaction': reaction==2 }">{{ article.dislikes }}</div>
                                 <i class="material-icons" :class="{ 'pressed-reaction': reaction==2 }">thumb_down_alt</i>
                             </span>
                              <span @click="clicked(1)">                               
-                                <div class="reaction" :class="{ 'pressed-reaction': reaction==1 }">{{ likes }}</div>
+                                <div class="reaction" :class="{ 'pressed-reaction': reaction==1 }">{{ article.likes }}</div>
                                 <i class="material-icons" :class="{ 'pressed-reaction': reaction==1 }">thumb_up_alt</i>
                             </span>
                         </div>
@@ -37,6 +37,7 @@
 </template>
 
 <script>
+import rest from '../rest.js'
 import VueMarkdown from 'vue-markdown';
 export default {
     name: 'ArticleBox',
@@ -46,26 +47,54 @@ export default {
 	data() {
         
 		return {
-            content: '# Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\nPraesent luctus risus in urna blandit dapibus. Mauris metus dui, vestibulum vel justo lacinia, blandit faucibus erat. Maecenas congue molestie odio quis pharetra. Ut malesuada, mi vel tristique mattis, tellus nulla posuere risus, eget tincidunt neque arcu vel ex.\n* Praesent aliquet orci dui, eu accumsan lorem tincidunt in.\n* Sed laoreet justo condimentum felis posuere gravida aliquam congue sapien.\n* Morbi sagittis, velit et consequat pretium, nisl augue malesuada diam, a volutpat nunc ex non risus.',
-            title: 'Lorem ipsum dolor sit amet',
-            likes: 5,
-            dislikes: 25,
-            date: '25.12.2019 15:15',
             reaction: 0,
-            views: 0
+            id: 4,
+           article: { title: '', content: '', creation_date: '', views: 0, likes: 0, dislikes: 0 }
 		};
 	},
 	methods: {
+        
 		clicked(id){
+            
             if(this.reaction===id){
                 this.reaction=0;
             } else {
                 this.reaction=id;
             }
-            console.log(id);
+           rest.put("/article/1/reaction", 
+       {reaction:this.reaction}, (err, data) => {
+                if (err) throw err;
+                 
+				if(data.code===0){
+                    this.reaction = data.reaction;
+            
+                }
+			});
         }
 		
-	}
+    },
+    created(){
+            rest.get("/article/"+this.id, 
+      null, (err, data) => {
+                if (err) throw err;
+                 
+				if(data.code===0){
+                   this.article=data.article;
+            console.log(data.article)
+                }
+            });
+            
+            rest.get("/article/"+this.id+"/reaction", 
+      null, (err, data) => {
+                if (err) throw err;
+                 
+				if(data.code===0){
+                    this.reaction = data.reaction;
+            
+                }
+			});
+    }
+    
 }
 
 </script>

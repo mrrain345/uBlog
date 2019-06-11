@@ -225,6 +225,77 @@ api.put('/article/:id/comments/:comment/reaction', (req, res) => {
         })
     }
 });
+//Get article reaction 
+api.get('/article/:id/reaction', (req, res) => {
+    get_current_user(req, (user)=> {
+        if(!user) res.json({ code: 0, message: "success", reaction: 0});
+        else {
+            db.query("SELECT reaction FROM article_reactions WHERE article=? AND user=? LIMIT 1", [req.params.id, user.id], (err, result, fields)=> {
+                throw_error(req, err);
+                let reaction = 0;
+                if (result.length===0) reaction=0;
+                else if (result[0].reaction==='LIKE') reaction=1;
+                else if (result[0].reaction==='DISLIKE') reaction=2;
+                res.json({ code:0, message: "success", reaction: reaction});
+            })
+        }
+    })
+});
+
+//Update article reaction
+api.put('/article/:id/reaction', (req, res) => {
+    if(req.body.reaction===undefined) res.json({ code: 2, message: "Reaction is required"})
+    else if(req.body.reaction<0 || req.body.reaction>2) res.json({ code: 3, message: "Incorrect reaction"})
+    else {
+        get_current_user(req, (user)=> {
+            if(!user) res.json({ code: 1, message: "You are not logged in"});
+            else {
+                db.query("SELECT reaction FROM article_reactions WHERE article=? AND user=? LIMIT 1", [req.params.id, user.id], (err, result, fields)=> {
+                    throw_error(req, err);
+                    if (result.length===0 && req.body.reaction!==0) {
+                        db.query("INSERT INTO article_reactions (user, article, reaction) VALUES (?, ?, ?)", [user.id, req.params.id, (req.body.reaction===1)? 'LIKE' : 'DISLIKE'], (err, result, fields)=> {
+                            throw_error(req, err);
+                            res.json({ code: 0, message: "success", reaction: req.body.reaction})
+                        });
+                    }
+                    else if (result.length!==0 && req.body.reaction!==0) {
+                        db.query("UPDATE article_reactions SET reaction=? WHERE user=? AND article=? LIMIT 1", [ (req.body.reaction===1)? 'LIKE' : 'DISLIKE', user.id, req.params.id], (err, result, fields)=> {
+                            throw_error(req, err);
+                            res.json({ code: 0, message: "success", reaction: req.body.reaction})
+                        });
+                    }
+                    else if (result.length!==0 && req.body.reaction===0) {
+                        db.query("DELETE FROM article_reactions WHERE user=? AND article=? LIMIT 1", [ user.id, req.params.id], (err, result, fields)=> {
+                            throw_error(req, err);
+                            res.json({ code: 0, message: "success", reaction: req.body.reaction})
+                        });
+                    }
+                    else {
+                        res.json({ code: 0, message: "success", reaction: req.body.reaction})
+                    }
+                })
+            }
+        })
+    }
+});
+//get article
+api.get('/article/:id', (req, res) => {
+    db.query("SELECT id,author,title,content,creation_date,views,likes,dislikes FROM articles WHERE id=? LIMIT 1", [req.params.id], (err, result, fields) => {
+        throw_error(req, err);
+        if(result.length===0){
+            res.json({code:1,message:"Article not found"});
+        }
+        else{
+            db.query("UPDATE articles SET views=views+1 WHERE id=?",[req.params.id],(err, result2, fields)=>{
+                throw_error(req, err);
+                result[0].views++;
+                res.json({ code: 0, message: "success", article:result[0]});
+            })
+        }
+       
+    });
+});
+
 //Header check subscribe
 api.get('/article/:id/subscribe', (req, res) => {
     
