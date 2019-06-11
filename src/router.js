@@ -9,6 +9,7 @@ module.exports = {
         { path: '/login', component: require('./components/Login.vue').default },
         { path: '/articles', component: require('./components/Articles.vue').default },
         { path: '/header', component: require('./components/Header.vue').default },
+        {path: '/article', component: require('./components/ArticleBox.vue').default },
         { path: '*', component: require('./components/NotFound.vue').default }
         
     ]
