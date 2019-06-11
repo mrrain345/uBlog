@@ -3,7 +3,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-2 col-lg-1">
-                <img class="image" src="/user_photo.png" alt="User">
+                <img class="image" src="/user_photo.png" alt="">
                 </div>
 			    <div class="col-7 col-lg-9">
                     <div class="row">

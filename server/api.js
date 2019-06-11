@@ -166,13 +166,13 @@ api.post('/article/:id/comments', (req, res) => {
 
 //Get comments
 api.get('/article/:id/comments', (req, res) => {
-    db.query("SELECT id, author, users.username, content, creation_date, likes, dislikes FROM comments LEFT JOIN users ON users.id=author WHERE article=?", [req.params.id], (err, result, fields)=> {
+    db.query("SELECT comments.id, author, username, content, creation_date, likes, dislikes, avatar FROM comments LEFT JOIN users ON users.id=author WHERE article=?", [req.params.id], (err, result, fields)=> {
         throw_error(req, err);
         res.json({ code: 0, message: "success", comments: result});
     })
 });
 
-//Get reaction
+//Get comment reaction
 api.get('/article/:id/comments/reaction', (req, res) => {
     get_current_user(req, (user)=> {
         if(!user) res.json({ code: 0, message: "success", reaction: 0});
@@ -189,7 +189,8 @@ api.get('/article/:id/comments/reaction', (req, res) => {
     })
 });
 
-//Update reaction
+
+//Update comment reaction
 api.put('/article/:id/comments/:comment/reaction', (req, res) => {
     if(req.body.reaction===undefined) res.json({ code: 2, message: "Reaction is required"})
     else if(req.body.reaction<0 || req.body.reaction>2) res.json({ code: 3, message: "Incorrect reaction"})
@@ -225,6 +226,7 @@ api.put('/article/:id/comments/:comment/reaction', (req, res) => {
         })
     }
 });
+
 //Get article reaction 
 api.get('/article/:id/reaction', (req, res) => {
     get_current_user(req, (user)=> {

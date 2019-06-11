@@ -61,7 +61,7 @@ export default {
             } else {
                 this.reaction=id;
             }
-           rest.put("/article/1/reaction", 
+           rest.put("/article/"+this.id+"/reaction", 
        {reaction:this.reaction}, (err, data) => {
                 if (err) throw err;
                  
@@ -80,7 +80,6 @@ export default {
                  
 				if(data.code===0){
                    this.article=data.article;
-            console.log(data.article)
                 }
             });
             

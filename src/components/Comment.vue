@@ -2,10 +2,10 @@
 	<div>
         <div class="container">
             <div class="row">
-                <div class="col-1">
-                <img class="image" src="" alt="Generic placeholder image">
+                <div class="col-2 col-lg-1">
+                <img class="image" :src="avatar" alt="">
                 </div>
-			    <div class="col-11">
+			    <div class="col-10 col-lg-11">
                     <div class="row">
                         <div class="col-12">
                             <span id="author">{{ author }}</span>
@@ -39,29 +39,53 @@
 </template>
 
 <script>
+import rest from '../rest.js'
+
 export default {
-	name: 'Comment',
-	data() {
-		return {
-            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean justo mauris, facilisis ac magna nec, ultrices pretium risus. Vestibulum finibus nisi non aliquet sodales. Maecenas imperdiet volutpat turpis, sed viverra dui semper eget. Integer interdum porta odio, non scelerisque mauris consectetur non. Integer in porttitor sapien. Nunc convallis mauris eget semper dictum. Maecenas in mauris ac purus lacinia mattis sit amet nec sapien. Vivamus id dolor nec enim scelerisque fringilla eu at metus. Nullam pellentesque malesuada orci, egestas molestie ex porttitor sit amet. Vivamus semper nisi vel posuere vestibulum.',
-            author: 'Twoja Matka',
-            likes: 5,
-            dislikes: 25,
-            date: '25.12.2019 15:15',
-            reaction: 0
-		};
-	},
+    name: 'Comment',
+    data(){
+        return { reaction: 0 }
+    },
+	props: [
+        'article',
+        'id',
+        'content',
+        'author',
+        'likes',
+        'dislikes',
+        'date',
+        'avatar'
+	],
 	methods: {
 		clicked(id){
+            
             if(this.reaction===id){
                 this.reaction=0;
             } else {
                 this.reaction=id;
             }
-            console.log(id);
+           rest.put("/article/"+this.article+"/comments/"+this.id+"/reaction", 
+        {reaction:this.reaction}, (err, data) => {
+                if (err) throw err;
+                 
+				if(data.code===0){
+                    this.reaction = data.reaction;
+            
+                }
+			});
         }
 		
-	}
+    },
+    created(){
+            rest.get("/article/"+this.article+"/comments/"+this.id+"/reaction", 
+      null, (err, data) => {
+                if (err) throw err;
+                 
+				if(data.code===0){
+                    this.reaction = data.reaction;
+                }
+			});
+    }
 }
 
 </script>
@@ -75,6 +99,10 @@ export default {
         margin-left: 10px;
         font-size: 15px;
         color: #757575;
+    }
+    img{
+        width:100%;
+        height:auto;
     }
     .reaction{
         color: #757575;
