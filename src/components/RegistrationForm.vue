@@ -100,13 +100,13 @@ export default {
           email: this.email,
           title: this.title,
           password: this.password,
-          cpassword: this.cpassword, 
+          cpassword: this.cpassword,
           checkbox: this.checkbox
         },
         (err, data) => {
           if (err) throw err;
-          if(data.code!==0) this.alert=data.message;
-          else this.$router.push({ path: '/registration-confirm' });
+          if (data.code !== 0) this.alert = data.message;
+          else this.$router.push({ path: "/registration-confirm" });
         }
       );
     }
@@ -115,7 +115,6 @@ export default {
 </script>
 
 <style scoped>
-
 .disactive {
   display: none;
 }
