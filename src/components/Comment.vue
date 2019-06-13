@@ -46,40 +46,55 @@ import rest from "../rest.js";
 export default {
   name: "Comment",
   data() {
-    return { reaction: 0 };
+    return { reaction: 0, likes: 0, dislikes: 0 };
   },
   props: [
     "article",
     "id",
     "content",
     "author",
-    "likes",
-    "dislikes",
     "date",
-    "avatar"
+    "avatar",
+    "like",
+    "dislike"
   ],
   methods: {
     clicked(id) {
-      if (this.reaction === id) {
-        this.reaction = 0;
-      } else {
-        this.reaction = id;
-      }
       rest.put(
         "/article/" + this.article + "/comments/" + this.id + "/reaction",
-        { reaction: this.reaction },
+        { reaction: this.reaction === id ? 0 : id },
         (err, data) => {
           if (err) throw err;
 
           if (data.code === 0) {
+            if (this.reaction !== 0 && data.reaction !== this.reaction) {
+              if (data.reaction === 1) {
+                this.likes++;
+                this.dislikes--;
+              } else if (data.reaction === 2) {
+                this.likes--;
+                this.dislikes++;
+              } else if (this.reaction === 1) {
+                this.likes--;
+              } else if (this.reaction === 2) {
+                this.dislikes--;
+              }
+            } else {
+              if (data.reaction === 1) {
+                this.likes++;
+              } else if (data.reaction === 2) {
+                this.dislikes++;
+              }
+            }
             this.reaction = data.reaction;
-            window.location.reload();
           }
         }
       );
     }
   },
   created() {
+    this.likes = this.like;
+    this.dislikes = this.dislike;
     rest.get(
       "/article/" + this.article + "/comments/" + this.id + "/reaction",
       null,

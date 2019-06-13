@@ -7,8 +7,8 @@
         :id="comment.id"
         :content="comment.content"
         :author="comment.username"
-        :likes="comment.likes"
-        :dislikes="comment.dislikes"
+        :like="comment.likes"
+        :dislike="comment.dislikes"
         :date="comment.date"
         :avatar="get_avatar(id)"
       />
