@@ -9,7 +9,7 @@
         :author="comment.username"
         :like="comment.likes"
         :dislike="comment.dislikes"
-        :date="comment.date"
+        :date="comment.creation_date"
         :avatar="get_avatar(id)"
       />
     </div>
@@ -27,8 +27,9 @@ export default {
     Comment,
     AddComment
   },
+  props: [ 'article' ],
   data() {
-    return { comments: [], article: 1 };
+    return { comments: [] };
   },
   created() {
     rest.get("/article/" + this.article + "/comments", null, (err, data) => {

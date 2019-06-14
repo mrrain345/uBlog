@@ -1,74 +1,106 @@
 <template>
   <div>
     <div class="container">
+      <div class="alert alert-danger" v-if="alert!==null">{{ alert }}</div>
+      <div id="header" >
       <div class="row">
-        <div class="col-2 col-lg-1">
-          <img class="image" src="/user_photo.png" alt>
+        <div class="col-2 col-lg-1" style="padding: 0;">
+          <img class="image" :src="get_avatar()" alt="">
         </div>
-        <div class="col-7 col-lg-9">
+        <div class="col-6 col-lg-9">
           <div class="row">
             <div class="col-12">
-              <span id="user">{{ user }}</span>
+              <span id="user">{{ user.username }}</span>
+              <span id="subscribes">{{ user.subscribes }} subs</span>
             </div>
           </div>
         </div>
-        <div class="col-3 col-lg-2">
-          <button class="btn btn-success" @click="subscribing()" v-if="subscribe">Subscribe</button>
-          <button class="btn btn-danger" @click="subscribing()" v-else>Unsubscribe</button>
-          <span id="subscribes">{{ subscribes }}</span>
+        <div class="col-4 col-lg-2" style="padding:0;">
+          <span v-if="!you">
+            <button class="btn btn-danger" @click="subscribing(true)" v-if="!subscribe">Subscribe</button>
+            <button class="btn btn-light" @click="subscribing(false)" v-else>Unsubscribe</button>
+          </span>
         </div>
       </div>
-      <div class="row" style="margin-top: 8px;">
-        <div class="col-11"></div>
-      </div>
     </div>
+    </div>
+    <Articles ref="article"/>
   </div>
 </template>
 
 <script>
 import rest from "../rest.js";
+import Articles from './Articles.vue';
 
 export default {
   name: "Header",
+  components: {
+    Articles
+  },
   data() {
     return {
-      user: "User",
-      subscribes: 0,
-      avatar: "/user_photo.png",
+      alert: null,
+      username: '',
+      you: false,
+      id: 0,
+      user: { id: 0, username: '', title: '', avatar: null, subscribes: 0 },
       subscribe: false
     };
   },
   created() {
-    rest.get("/article/1/subscribe", null, (err, data) => {
+    this.username = window.location.pathname.split('/')[2];
+
+    rest.get("/user/"+this.username, null, (err, data) => {
       if (err) throw err;
-      if (data.code === 0) {
-        this.subscribe = data.subscribed;
+      if (data.code !== 0) this.alert = data.message;
+      else {
+        this.user = data.user;
+        this.id = parseInt(data.user.id);
+        this.you = data.you;
+        this.$refs.article.setId(this.id, this.you);
+
+        rest.get("/article/"+this.id+"/subscribe", null, (err, data) => {
+          if (err) throw err;
+          if (data.code === 0) {
+            this.subscribe = data.subscribed;
+          }
+        });
       }
     });
   },
   methods: {
-    subscribing() {
+    subscribing(sub) {
       rest.put(
-        "/article/1/subscribe",
+        "/article/"+this.id+"/subscribe",
         {
-          subscribe: !this.subscribe
+          subscribe: sub
         },
         (err, data) => {
           if (err) throw err;
           if (data.code === 0) {
-            console.log(data);
             this.subscribe = data.subscribed;
+            this.user.subscribes += (sub ? 1 : -1);
           }
         }
       );
+    },
+    get_avatar() {
+      if (this.user.avatar === null) return "/user_photo.png";
+      else return this.user.avatar;
     }
   }
 };
 </script>
 
 <style scoped>
+#header {
+  padding: 30px;
+  margin-bottom: 20px;
+  background-color: #66bb6a;
+}
+
 #user {
-  font-size: 40px;
+  font-size: 30px;
   font-weight: bold;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -79,7 +111,6 @@ export default {
 #subscribes {
   font-size: 20px;
   color: #757575;
-  text-align: right;
   width: 100%;
   display: block;
   overflow: hidden;
@@ -90,6 +121,8 @@ img {
 }
 button {
   margin-top: 8px;
+  padding-left: 5px;
+  padding-left: 5px;
   width: 100%;
 }
 .subscribed {
@@ -97,7 +130,7 @@ button {
 }
 @media screen and (min-width: 768px) {
   #user {
-    font-size: 25px;
+    font-size: 40px;
   }
 }
 </style>

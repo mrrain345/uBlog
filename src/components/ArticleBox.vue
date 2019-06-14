@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container">
+    <div class="container entry">
       <div class="row">
         <div class="col-12">
           <div class="row">
@@ -42,21 +42,25 @@
         <div class="col-11"></div>
       </div>
     </div>
+	<CommantList :article="id"/>
   </div>
 </template>
 
 <script>
 import rest from "../rest.js";
 import VueMarkdown from "vue-markdown";
+import CommantList from "./CommentList";
+
 export default {
   name: "ArticleBox",
   components: {
-    VueMarkdown
+	VueMarkdown,
+	CommantList
   },
   data() {
     return {
       reaction: 0,
-      id: 4,
+      id: 0,
       article: {
         title: "",
         content: "",
@@ -69,18 +73,32 @@ export default {
   },
   methods: {
     clicked(id) {
-      if (this.reaction === id) {
-        this.reaction = 0;
-      } else {
-        this.reaction = id;
-      }
       rest.put(
         "/article/" + this.id + "/reaction",
-        { reaction: this.reaction },
+        { reaction: this.reaction === id ? 0 : id },
         (err, data) => {
           if (err) throw err;
 
           if (data.code === 0) {
+            if (this.reaction !== 0 && data.reaction !== this.reaction) {
+              if (data.reaction === 1) {
+                this.article.likes++;
+                this.article.dislikes--;
+              } else if (data.reaction === 2) {
+                this.article.likes--;
+                this.article.dislikes++;
+              } else if (this.reaction === 1) {
+                this.article.likes--;
+              } else if (this.reaction === 2) {
+                this.article.dislikes--;
+              }
+            } else {
+              if (data.reaction === 1) {
+                this.article.likes++;
+              } else if (data.reaction === 2) {
+                this.article.dislikes++;
+              }
+            }
             this.reaction = data.reaction;
           }
         }
@@ -88,6 +106,8 @@ export default {
     }
   },
   created() {
+    this.id = parseInt(window.location.pathname.split('/')[3]);
+
     rest.get("/article/" + this.id, null, (err, data) => {
       if (err) throw err;
 
@@ -115,12 +135,12 @@ export default {
 #date {
   margin-left: 10px;
   font-size: 20px;
-  color: #757575;
+  color: #c8e6c9;
 }
 #views {
   margin-left: 10px;
-  font-size: 15px;
-  color: #757575;
+  font-size: 20px;
+  color: #c8e6c9;
 }
 .reaction {
   color: #757575;
@@ -139,7 +159,7 @@ export default {
   transition: all 0.1s;
 }
 .pressed-reaction {
-  color: #43a047;
+  color: #1b5e20;
 }
 .reaction:hover {
   color: #616161;
@@ -152,5 +172,11 @@ export default {
 }
 .markdown {
   text-align: justify;
+}
+
+.entry {
+  margin-bottom: 30px;
+  background-color: #66bb6a;
+  cursor: pointer;
 }
 </style>

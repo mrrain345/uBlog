@@ -1,11 +1,13 @@
 <template>
-  <div class="container">
-    <h2>µBlog</h2>
-  </div>
+  <Articles main="true"/>
 </template>
 
 <script>
+import Articles from './Articles.vue';
 export default {
-  name: "Main"
+  name: "Main",
+  components: {
+	  Articles
+  }
 };
 </script>

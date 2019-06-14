@@ -24,7 +24,7 @@
             <router-link class="nav-item nav-link" to="/writer">New article</router-link>
           </span>
           <span @click="setActive(2)" v-if="islogin">
-            <router-link class="nav-item nav-link" to="/profile">Profile</router-link>
+            <router-link class="nav-item nav-link" :to="'/u/'+username">Profile</router-link>
           </span>
           <span @click="setActive(3)" v-if="islogin">
             <router-link class="nav-item nav-link" to="/login">logout</router-link>
@@ -49,7 +49,8 @@ export default {
   data() {
     return {
       active: -1,
-      islogin: false
+      islogin: false,
+      username: ''
     };
   },
   methods: {
@@ -68,9 +69,14 @@ export default {
     } */
     rest.get("/session", null, (err, data) => {
       if (err) throw err;
-      if (data.code === 0) this.islogin = true;
-      else this.login = false;
-      console.log(this.islogin);
+      if (data.code === 0) {
+        this.islogin = true;
+        this.username = data.username;
+      }
+      else {
+        this.login = false;
+        this.username = '';
+      }
     });
   }
 };

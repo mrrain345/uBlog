@@ -4,7 +4,7 @@
       class="text-muted"
       style="margin-top: 60px;"
     >Registration complete. Please check your e-mail.</h3>
-    <div class="alert alert-danger" :class="{ 'disactive': alert === null }">{{ alert }}</div>
+    <div class="alert alert-danger" v-if="alert!==null">{{ alert }}</div>
   </div>
 </template>
 
@@ -41,9 +41,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.disactive {
-  display: none;
-}
-</style>

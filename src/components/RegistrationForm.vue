@@ -7,7 +7,7 @@
           <h3 class="text-muted">Create your own blog</h3>
         </div> 
         <div id="register" class="col-8 col-sm-6 col-md-5 col-lg-4">
-          <div class="alert alert-danger" :class="{ 'disactive': alert === null }">{{ alert }}</div>
+          <div class="alert alert-danger" v-if="alert!==null">{{ alert }}</div>
           <div class="row">
             <div class="col-1"></div>
             <div class="col-10">
@@ -29,16 +29,6 @@
                   v-model="email"
                   type="email"
                   placeholder="E-mail"
-                >
-              </div>
-              <div class="form-group">
-                <label for="title">Blog title</label>
-                <input
-                  id="title"
-                  class="form-control"
-                  v-model="title"
-                  type="text"
-                  placeholder="Blog title"
                 >
               </div>
               <div class="form-group">
@@ -115,9 +105,6 @@ export default {
 </script>
 
 <style scoped>
-.disactive {
-  display: none;
-}
 h1 {
   margin-top: 75px;
   color: #4caf50;
@@ -142,6 +129,7 @@ button {
   padding-top: 70px;
   padding-bottom: 140px;
   margin: 0 auto;
+  margin-top: 20px;
   background: #43a047;
   box-shadow: 0 0 6px 2px #1b5e20;
 }
