@@ -23,7 +23,7 @@ function get_current_user(req, callback) {
         db.query("SELECT sessions.user AS id, users.username AS username FROM sessions LEFT JOIN users ON sessions.user=users.id WHERE session=? LIMIT 1", [session], (err, result, fields) => {
             throw_error(req, err);
             if (result.length < 1) callback(undefined);
-            else callback({ id: result[0].id, username: result[0].username });
+            else callback({ id: result[0].id, username: result[0].username, session: session });
         });
     }
 }
@@ -58,11 +58,25 @@ api.post('/session', (req, res) => {
 // check session
 api.get('/session', (req, res) => {
     get_current_user(req, (user) => {
-        console.log('user:', user);
+
         if (user === undefined) res.json({ code: 1, message: 'Session not found' });
         else {
-            console.log({ code: 0, message: 'You are logged in', id: user.id, username: user.username });
+
             res.json({ code: 0, message: 'You are logged in', id: user.id, username: user.username });
+        }
+    });
+});
+
+// logout
+api.delete('/session', (req, res) => {
+    get_current_user(req, (user) => {
+
+        if (user === undefined) res.json({ code: 0, message: 'success' });
+        else {
+            db.query("DELETE FROM sessions WHERE session=? LIMIT 1", [user.session], (err, result, fields) => {
+                throw_error(req, err);
+                res.json({ code: 0, message: 'success' });
+            });
         }
     });
 });
@@ -106,7 +120,7 @@ api.post('/registration', (req, res) => {
                                 to: req.body.email,
                                 subject: 'µBlog - confirm registration email',
                                 html: 'Please click the link to activate your account<br/><a href="https://ublog.eu/registration-confirm?token=' + token + '">https://ublog.eu/registration-confirm?token=' + token + '</a><br/>Check your spam folder<br/>µBlog',
-                            }, function (err, reply) {
+                            }, function(err, reply) {
                                 console.log(err && err.stack);
                                 console.dir(reply);
                             });
@@ -156,8 +170,7 @@ api.post('/article', (req, res) => {
 //Add comment
 api.post('/article/:id/comments', (req, res) => {
     get_current_user(req, (user) => {
-        if (!user) { res.json({ code: 1, message: "You are not logged in" }); }
-        else {
+        if (!user) { res.json({ code: 1, message: "You are not logged in" }); } else {
             db.query("INSERT INTO comments (article, author, content) VALUES (?, ?, ?)", [req.params.id, user.id, req.body.content], (err, result, fields) => {
                 throw_error(req, err);
                 res.json({ code: 0, message: "success" });
@@ -205,11 +218,11 @@ api.put('/article/:id/comments/:comment/reaction', (req, res) => {
                     if (reaction.length === 0 && req.body.reaction !== 0) {
                         db.query("INSERT INTO comment_reactions (user, article, target, reaction) VALUES (?, ?, ?, ?)", [user.id, req.params.id, req.params.comment, (req.body.reaction === 1) ? 'LIKE' : 'DISLIKE'], (err, result, fields) => {
                             throw_error(req, err);
-                            if(req.body.reaction===1){
-                            db.query("UPDATE comments SET likes=likes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
-                                throw_error(req, err);
-                                res.json({ code: 0, message: "success", reaction: req.body.reaction })
-                            });
+                            if (req.body.reaction === 1) {
+                                db.query("UPDATE comments SET likes=likes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
+                                    throw_error(req, err);
+                                    res.json({ code: 0, message: "success", reaction: req.body.reaction })
+                                });
                             } else {
                                 db.query("UPDATE comments SET dislikes=dislikes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
@@ -217,48 +230,41 @@ api.put('/article/:id/comments/:comment/reaction', (req, res) => {
                                 });
                             }
                         });
-                    }
-                    else if (reaction.length !== 0 && req.body.reaction !== 0) {
+                    } else if (reaction.length !== 0 && req.body.reaction !== 0) {
                         db.query("UPDATE comment_reactions SET reaction=? WHERE user=? AND article=? AND target=? LIMIT 1", [(req.body.reaction === 1) ? 'LIKE' : 'DISLIKE', user.id, req.params.id, req.params.comment], (err, result2, fields) => {
                             throw_error(req, err);
-                            if(reaction[0].reaction === 'LIKE' && req.body.reaction===2) {
+                            if (reaction[0].reaction === 'LIKE' && req.body.reaction === 2) {
                                 db.query("UPDATE comments SET likes=likes-1, dislikes=dislikes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction });
                                 });
-                            }
-                            else if(reaction[0].reaction === 'DISLIKE' && req.body.reaction===1) {
+                            } else if (reaction[0].reaction === 'DISLIKE' && req.body.reaction === 1) {
                                 db.query("UPDATE comments SET dislikes=dislikes-1, likes=likes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction });
                                 });
-                            }
-                            else {
+                            } else {
                                 res.json({ code: 0, message: "success", reaction: req.body.reaction });
                             }
                         });
-                    }
-                    else if (reaction.length !== 0 && req.body.reaction === 0) {
+                    } else if (reaction.length !== 0 && req.body.reaction === 0) {
                         db.query("DELETE FROM comment_reactions WHERE user=? AND article=? AND target=? LIMIT 1", [user.id, req.params.id, req.params.comment], (err, result2, fields) => {
                             throw_error(req, err);
-                            if(reaction[0].reaction === 'LIKE') {
+                            if (reaction[0].reaction === 'LIKE') {
                                 db.query("UPDATE comments SET likes=likes-1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction });
                                 });
-                            }
-                            else if(reaction[0].reaction === 'DISLIKE') {
+                            } else if (reaction[0].reaction === 'DISLIKE') {
                                 db.query("UPDATE comments SET dislikes=dislikes-1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction });
                                 });
-                            }
-                            else {
+                            } else {
                                 res.json({ code: 0, message: "success", reaction: req.body.reaction });
                             }
                         });
-                    }
-                    else {
+                    } else {
                         res.json({ code: 0, message: "success", reaction: req.body.reaction })
                     }
                 })
@@ -299,20 +305,17 @@ api.put('/article/:id/reaction', (req, res) => {
                             throw_error(req, err);
                             res.json({ code: 0, message: "success", reaction: req.body.reaction })
                         });
-                    }
-                    else if (result.length !== 0 && req.body.reaction !== 0) {
+                    } else if (result.length !== 0 && req.body.reaction !== 0) {
                         db.query("UPDATE article_reactions SET reaction=? WHERE user=? AND article=? LIMIT 1", [(req.body.reaction === 1) ? 'LIKE' : 'DISLIKE', user.id, req.params.id], (err, result, fields) => {
                             throw_error(req, err);
                             res.json({ code: 0, message: "success", reaction: req.body.reaction })
                         });
-                    }
-                    else if (result.length !== 0 && req.body.reaction === 0) {
+                    } else if (result.length !== 0 && req.body.reaction === 0) {
                         db.query("DELETE FROM article_reactions WHERE user=? AND article=? LIMIT 1", [user.id, req.params.id], (err, result, fields) => {
                             throw_error(req, err);
                             res.json({ code: 0, message: "success", reaction: req.body.reaction })
                         });
-                    }
-                    else {
+                    } else {
                         res.json({ code: 0, message: "success", reaction: req.body.reaction })
                     }
                 })
@@ -326,8 +329,7 @@ api.get('/article/:id', (req, res) => {
         throw_error(req, err);
         if (result.length === 0) {
             res.json({ code: 1, message: "Article not found" });
-        }
-        else {
+        } else {
             db.query("UPDATE articles SET views=views+1 WHERE id=?", [req.params.id], (err, result2, fields) => {
                 throw_error(req, err);
                 result[0].views++;
@@ -345,14 +347,12 @@ api.get('/article/:id/subscribe', (req, res) => {
 
         if (user === undefined) {
             res.json({ code: 0, message: "success", subscribed: false });
-        }
-        else {
+        } else {
             db.query("SELECT subscribed FROM subscriptions WHERE user = ? AND subscribed = ? LIMIT 1", [user.id, req.params.id], (err, result, fields) => {
                 throw_error(req, err);
                 if (result.length === 0) {
                     res.json({ code: 0, message: "success", subscribed: false });
-                }
-                else {
+                } else {
                     res.json({ code: 0, message: "success", subscribed: true });
                 }
             })
@@ -364,13 +364,11 @@ api.get('/article/:id/subscribe', (req, res) => {
 api.put('/article/:id/subscribe', (req, res) => {
     if (req.body.subscribe === undefined) {
         res.json({ code: 2, message: "Subscribe is required" });
-    }
-    else get_current_user(req, (user) => {
+    } else get_current_user(req, (user) => {
 
         if (user === undefined) {
             res.json({ code: 1, message: "You're not logged in" });
-        }
-        else {
+        } else {
             db.query("SELECT subscribed FROM subscriptions WHERE user = ? AND subscribed = ? LIMIT 1", [user.id, req.params.id], (err, result, fields) => {
                 throw_error(req, err);
                 if (result.length === 0 && req.body.subscribe) {
@@ -381,8 +379,7 @@ api.put('/article/:id/subscribe', (req, res) => {
                             res.json({ code: 0, message: "success", subscribed: true });
                         })
                     })
-                }
-                else if (result.length !== 0 && !req.body.subscribe) {
+                } else if (result.length !== 0 && !req.body.subscribe) {
                     db.query("DELETE FROM subscribed WHERE user = ? AND subscribed = ? LIMIT 1", [user.id, req.params.id], (err, result, fields) => {
                         throw_error(req, err);
                         db.query("UPDATE users SET subscribes=subscribes-1 WHERE id=?", [req.params.id], (err, result, fields) => {
@@ -392,8 +389,7 @@ api.put('/article/:id/subscribe', (req, res) => {
 
 
                     })
-                }
-                else {
+                } else {
                     res.json({ code: 0, message: "success", subscribed: req.body.subscribe });
                 }
             })

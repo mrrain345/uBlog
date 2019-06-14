@@ -5,7 +5,7 @@
         <div class="d-none d-sm-block col-sm-6 col-md-7 col-lg-8">
           <h1>µBlog</h1>
           <h3 class="text-muted">Create your own blog</h3>
-        </div>
+        </div> 
         <div id="register" class="col-8 col-sm-6 col-md-5 col-lg-4">
           <div class="alert alert-danger" :class="{ 'disactive': alert === null }">{{ alert }}</div>
           <div class="row">
