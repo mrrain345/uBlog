@@ -69,8 +69,7 @@ export default {
   data() {
     return {
       title: "",
-      source:
-        "# Lorem ipsum\n\n### Lorem ipsum dolor sit amet\nConsectetur adipiscing elit. Curabitur ac ante pretium tortor venenatis fringilla. Quisque mauris augue, sollicitudin quis congue quis, facilisis at nibh. Sed euismod consectetur magna ac malesuada. Morbi erat leo, pulvinar id euismod quis, imperdiet vel nunc. Nulla lacinia malesuada purus, eu maximus leo semper et. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam vestibulum enim sed vestibulum maximus. Praesent imperdiet in dui ut ultrices. In sit amet aliquet nibh, eu pretium tellus.\n\nSuspendisse rutrum,\ndolor ultricies luctus tempus,\norci diam scelerisque massa,\nvel posuere neque metus ac nisi.\nSed efficitur ut est ac scelerisque.\nPellentesque porttitor,\nipsum quis semper porta,\nmassa lectus consequat neque,\nnon lobortis ex metus ut diam.\n\nFusce consequat dui sit amet eros ultricies egestas. Praesent quis rhoncus mi, ac tincidunt enim. Sed aliquam luctus urna, et tempor turpis molestie ac. Nunc nec venenatis enim. Nullam elementum metus eu vulputate hendrerit. Pellentesque interdum euismod consequat. Suspendisse consectetur mattis porta. Aenean massa eros, dignissim vitae maximus vel, fringilla a ligula. Morbi felis nibh, viverra maximus nisl vitae, hendrerit bibendum diam. Sed a nibh quam. Nulla commodo tincidunt ultrices. Mauris aliquam orci risus, nec aliquet lacus laoreet eu. Suspendisse pulvinar vehicula lorem tristique fringilla."
+      source: ""
     };
   },
   methods: {

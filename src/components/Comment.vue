@@ -16,8 +16,7 @@
             <div class="col-12" id="content">{{ content }}</div>
           </div>
           <div class="row">
-            <div class="col-10"></div>
-            <div class="col-2">
+            <div class="col-12">
               <span @click="clicked(2)">
                 <div class="reaction" :class="{ 'pressed-reaction': reaction==2 }">{{ dislikes }}</div>
                 <i

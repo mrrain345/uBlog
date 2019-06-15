@@ -10,8 +10,8 @@
         ></textarea>
       </div>
       <div class="row" style="margin-top: 8px;">
-        <div class="col-11"></div>
-        <button type="button" class="btn btn-success col-1" @click="comment()">Comment</button>
+        <div class="col-10"></div>
+        <button type="button" class="btn btn-success col-2" @click="comment()">Comment</button>
       </div>
     </div>
   </div>
