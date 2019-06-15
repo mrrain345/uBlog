@@ -241,12 +241,12 @@ api.put('/article/:id/comments/:comment/reaction', (req, res) => {
                         db.query("INSERT INTO comment_reactions (user, article, target, reaction) VALUES (?, ?, ?, ?)", [user.id, req.params.id, req.params.comment, (req.body.reaction === 1) ? 'LIKE' : 'DISLIKE'], (err, result, fields) => {
                             throw_error(req, err);
                             if (req.body.reaction === 1) {
-                                db.query("UPDATE comments SET likes=likes+1 WHERE article=? AND id=? AND author=? LIMIT 1", [req.params.id, req.params.comment, user.id], (err, result, fields) => {
+                                db.query("UPDATE comments SET likes=likes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction })
                                 });
                             } else {
-                                db.query("UPDATE comments SET dislikes=dislikes+1 WHERE article=? AND id=? AND author=? LIMIT 1", [req.params.id, req.params.comment, user.id], (err, result, fields) => {
+                                db.query("UPDATE comments SET dislikes=dislikes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction })
                                 });
@@ -256,12 +256,12 @@ api.put('/article/:id/comments/:comment/reaction', (req, res) => {
                         db.query("UPDATE comment_reactions SET reaction=? WHERE user=? AND article=? AND target=? LIMIT 1", [(req.body.reaction === 1) ? 'LIKE' : 'DISLIKE', user.id, req.params.id, req.params.comment], (err, result2, fields) => {
                             throw_error(req, err);
                             if (reaction[0].reaction === 'LIKE' && req.body.reaction === 2) {
-                                db.query("UPDATE comments SET likes=likes-1, dislikes=dislikes+1 WHERE article=? AND id=? AND author=? LIMIT 1", [req.params.id, req.params.comment, user.id], (err, result, fields) => {
+                                db.query("UPDATE comments SET likes=likes-1, dislikes=dislikes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction });
                                 });
                             } else if (reaction[0].reaction === 'DISLIKE' && req.body.reaction === 1) {
-                                db.query("UPDATE comments SET dislikes=dislikes-1, likes=likes+1 WHERE article=? AND id=? AND author=? LIMIT 1", [req.params.id, req.params.comment, user.id], (err, result, fields) => {
+                                db.query("UPDATE comments SET dislikes=dislikes-1, likes=likes+1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction });
                                 });
@@ -273,12 +273,12 @@ api.put('/article/:id/comments/:comment/reaction', (req, res) => {
                         db.query("DELETE FROM comment_reactions WHERE user=? AND article=? AND target=? LIMIT 1", [user.id, req.params.id, req.params.comment], (err, result2, fields) => {
                             throw_error(req, err);
                             if (reaction[0].reaction === 'LIKE') {
-                                db.query("UPDATE comments SET likes=likes-1 WHERE article=? AND id=? AND author=? LIMIT 1", [req.params.id, req.params.comment, user.id], (err, result, fields) => {
+                                db.query("UPDATE comments SET likes=likes-1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction });
                                 });
                             } else if (reaction[0].reaction === 'DISLIKE') {
-                                db.query("UPDATE comments SET dislikes=dislikes-1 WHERE article=? AND id=? AND author=? LIMIT 1", [req.params.id, req.params.comment, user.id], (err, result, fields) => {
+                                db.query("UPDATE comments SET dislikes=dislikes-1 WHERE article=? AND id=? LIMIT 1", [req.params.id, req.params.comment], (err, result, fields) => {
                                     throw_error(req, err);
                                     res.json({ code: 0, message: "success", reaction: req.body.reaction });
                                 });
@@ -326,12 +326,12 @@ api.put('/article/:id/reaction', (req, res) => {
                       db.query("INSERT INTO article_reactions (user, article, reaction) VALUES (?, ?, ?)", [user.id, req.params.id, (req.body.reaction === 1) ? 'LIKE' : 'DISLIKE'], (err, result, fields) => {
                           throw_error(req, err);
                           if (req.body.reaction === 1) {
-                              db.query("UPDATE articles SET likes=likes+1 WHERE id=? AND author=? LIMIT 1", [req.params.id, user.id], (err, result, fields) => {
+                              db.query("UPDATE articles SET likes=likes+1 WHERE id=? LIMIT 1", [req.params.id], (err, result, fields) => {
                                   throw_error(req, err);
                                   res.json({ code: 0, message: "success", reaction: req.body.reaction })
                               });
                           } else {
-                              db.query("UPDATE articles SET dislikes=dislikes+1 WHERE id=? AND author=? LIMIT 1", [req.params.id, user.id], (err, result, fields) => {
+                              db.query("UPDATE articles SET dislikes=dislikes+1 WHERE id=? LIMIT 1", [req.params.id], (err, result, fields) => {
                                   throw_error(req, err);
                                   res.json({ code: 0, message: "success", reaction: req.body.reaction })
                               });
@@ -341,12 +341,12 @@ api.put('/article/:id/reaction', (req, res) => {
                       db.query("UPDATE article_reactions SET reaction=? WHERE user=? AND article=? LIMIT 1", [(req.body.reaction === 1) ? 'LIKE' : 'DISLIKE', user.id, req.params.id], (err, result2, fields) => {
                           throw_error(req, err);
                           if (reaction[0].reaction === 'LIKE' && req.body.reaction === 2) {
-                              db.query("UPDATE articles SET likes=likes-1, dislikes=dislikes+1 WHERE id=? AND author=? LIMIT 1", [req.params.id, user.id], (err, result, fields) => {
+                              db.query("UPDATE articles SET likes=likes-1, dislikes=dislikes+1 WHERE id=? LIMIT 1", [req.params.id], (err, result, fields) => {
                                   throw_error(req, err);
                                   res.json({ code: 0, message: "success", reaction: req.body.reaction });
                               });
                           } else if (reaction[0].reaction === 'DISLIKE' && req.body.reaction === 1) {
-                              db.query("UPDATE articles SET dislikes=dislikes-1, likes=likes+1 WHERE id=? AND author=? LIMIT 1", [req.params.id, user.id], (err, result, fields) => {
+                              db.query("UPDATE articles SET dislikes=dislikes-1, likes=likes+1 WHERE id=? LIMIT 1", [req.params.id], (err, result, fields) => {
                                   throw_error(req, err);
                                   res.json({ code: 0, message: "success", reaction: req.body.reaction });
                               });
@@ -358,12 +358,12 @@ api.put('/article/:id/reaction', (req, res) => {
                       db.query("DELETE FROM article_reactions WHERE user=? AND article=? LIMIT 1", [user.id, req.params.id], (err, result2, fields) => {
                           throw_error(req, err);
                           if (reaction[0].reaction === 'LIKE') {
-                              db.query("UPDATE articles SET likes=likes-1 WHERE id=? AND author=? LIMIT 1", [req.params.id, user.id], (err, result, fields) => {
+                              db.query("UPDATE articles SET likes=likes-1 WHERE id=? LIMIT 1", [req.params.id], (err, result, fields) => {
                                   throw_error(req, err);
                                   res.json({ code: 0, message: "success", reaction: req.body.reaction });
                               });
                           } else if (reaction[0].reaction === 'DISLIKE') {
-                              db.query("UPDATE articles SET dislikes=dislikes-1 WHERE id=? AND author=? LIMIT 1", [req.params.id, user.id], (err, result, fields) => {
+                              db.query("UPDATE articles SET dislikes=dislikes-1 WHERE id=? LIMIT 1", [req.params.id], (err, result, fields) => {
                                   throw_error(req, err);
                                   res.json({ code: 0, message: "success", reaction: req.body.reaction });
                               });
