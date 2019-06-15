@@ -139,10 +139,10 @@ api.post('/registration', (req, res) => {
                             throw_error(req, err);
                             res.json({ code: 0, message: "success" });
                             sendmail({
-                                from: 'no-reply@ublog.ue',
+                                from: 'µBlog <no-reply@ublog.ue>',
                                 to: req.body.email,
                                 subject: 'µBlog - confirm registration email',
-                                html: 'Please click the link to activate your account<br/><a href="https://ublog.eu/registration-confirm?token=' + token + '">https://ublog.eu/registration-confirm?token=' + token + '</a><br/>Check your spam folder<br/>µBlog',
+                                html: 'Please click the link to activate your account<br/><a href="https://ublog.ue/registration-confirm?token=' + token + '">https://ublog.eu/registration-confirm?token=' + token + '</a><br/>Check your spam folder<br/>µBlog',
                             }, function(err, reply) {
                                 console.log(err && err.stack);
                                 console.dir(reply);
