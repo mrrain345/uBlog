@@ -96,9 +96,6 @@ export default {
 .markdown {
   text-align: justify;
   overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
 	max-height: 210px;
 }
 </style>
